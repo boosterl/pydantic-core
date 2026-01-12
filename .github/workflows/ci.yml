@@ -439,7 +439,7 @@ jobs:
           #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
           - os: linux
             manylinux: auto
-            target: riscv64gc
+            target: riscv64gc-unknown-linux-gnu
             interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
           # - os: linux
           #   manylinux: auto
@@ -472,7 +472,7 @@ jobs:
           #   target: armv7
           - os: linux
             manylinux: musllinux_1_1
-            target: riscv64
+            target: riscv64gc-unknown-linux-gnu
 
           # macos;
           # all versions x86_64
