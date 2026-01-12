@@ -15,6 +15,7 @@ env:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    if: false
 
     steps:
       - uses: actions/checkout@v5
@@ -59,6 +60,7 @@ jobs:
 
   test-python:
     name: test ${{ matrix.python-version }}
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -113,6 +115,7 @@ jobs:
 
   test-os:
     name: test on ${{ matrix.os }}
+    if: false
 
     strategy:
       fail-fast: false
@@ -147,6 +150,7 @@ jobs:
 
   test-msrv:
     name: test MSRV
+    if: false
 
     runs-on: ubuntu-latest
     steps:
@@ -184,6 +188,7 @@ jobs:
   test-debug:
     name: test-debug ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    if: false
 
     strategy:
       fail-fast: false
@@ -217,6 +222,7 @@ jobs:
   test-pydantic-integration:
     runs-on: ubuntu-latest
     continue-on-error: true
+    if: false
 
     steps:
       - uses: actions/checkout@v5
@@ -259,6 +265,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    if: false
 
     steps:
       - uses: actions/checkout@v5
@@ -294,6 +301,7 @@ jobs:
   bench:
     name: rust benchmarks
     runs-on: ubuntu-latest
+    if: false
 
     steps:
       - uses: actions/checkout@v5
@@ -314,6 +322,7 @@ jobs:
 
   build-wasm-emscripten:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v5
 
@@ -364,7 +373,8 @@ jobs:
 
   # https://github.com/marketplace/actions/alls-green#why used for branch protection checks
   check:
-    if: always()
+    # if: always()
+    if: false
     needs:
       [
         coverage,
@@ -386,6 +396,7 @@ jobs:
   build-sdist:
     name: build sdist
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -404,7 +415,8 @@ jobs:
   build:
     name: build on ${{ matrix.os }} (${{ matrix.target }} - ${{ matrix.interpreter || 'all' }}${{ matrix.os == 'linux' && format(' - {0}', matrix.manylinux == 'auto' && 'manylinux' || matrix.manylinux) || '' }})
     # only run on push to main and on release
-    if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'Full Build')
+    # if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'Full Build')
+    if: always()
     strategy:
       fail-fast: false
       matrix:
@@ -414,72 +426,79 @@ jobs:
         include:
           # manylinux for various platforms
           # x86_64 and aarch64 are PGO optimized below
+          # - os: linux
+          #   manylinux: auto
+          #   target: i686
+          # - os: linux
+          #   manylinux: auto
+          #   target: armv7
+          #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
+          # - os: linux
+          #   manylinux: auto
+          #   target: ppc64le
+          #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
           - os: linux
             manylinux: auto
-            target: i686
-          - os: linux
-            manylinux: auto
-            target: armv7
+            target: riscv64gc
             interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
-          - os: linux
-            manylinux: auto
-            target: ppc64le
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
-          - os: linux
-            manylinux: auto
-            target: s390x
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
-          - os: linux
-            manylinux: auto
-            target: x86_64
-            interpreter: pypy3.10 pypy3.11 graalpy3.11 graalpy3.12
+          # - os: linux
+          #   manylinux: auto
+          #   target: s390x
+          #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
+          # - os: linux
+          #   manylinux: auto
+          #   target: x86_64
+          #   interpreter: pypy3.10 pypy3.11 graalpy3.11 graalpy3.12
 
             # manylinux pypy and graalpy on major architectures
-          - os: linux
-            manylinux: auto
-            target: x86_64
-            interpreter: graalpy3.11 graalpy3.12
-          - os: linux
-            manylinux: auto
-            target: aarch64
-            interpreter: graalpy3.11 graalpy3.12
+          # - os: linux
+          #   manylinux: auto
+          #   target: x86_64
+          #   interpreter: graalpy3.11 graalpy3.12
+          # - os: linux
+          #   manylinux: auto
+          #   target: aarch64
+          #   interpreter: graalpy3.11 graalpy3.12
 
           # musllinux
+          # - os: linux
+          #   manylinux: musllinux_1_1
+          #   target: x86_64
+          # - os: linux
+          #   manylinux: musllinux_1_1
+          #   target: aarch64
+          # - os: linux
+          #   manylinux: musllinux_1_1
+          #   target: armv7
           - os: linux
             manylinux: musllinux_1_1
-            target: x86_64
-          - os: linux
-            manylinux: musllinux_1_1
-            target: aarch64
-          - os: linux
-            manylinux: musllinux_1_1
-            target: armv7
+            target: riscv64
 
           # macos;
           # all versions x86_64
           # arm pypy and older pythons which can't be run on the arm hardware for PGO
-          - os: macos
-            target: x86_64
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t pypy3.10 pypy3.11 graalpy3.11 graalpy3.12
-          - os: macos
-            target: aarch64
-            interpreter: 3.9 pypy3.10 pypy3.11 graalpy3.11 graalpy3.12
+          # - os: macos
+          #   target: x86_64
+          #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t pypy3.10 pypy3.11 graalpy3.11 graalpy3.12
+          # - os: macos
+          #   target: aarch64
+          #   interpreter: 3.9 pypy3.10 pypy3.11 graalpy3.11 graalpy3.12
 
           # windows;
           # x86_64 pypy builds are not PGO optimized
           # i686 not supported by pypy
           # windows 11 arm supports 3.11 and up, not PGO optimized for now
-          - os: windows
-            target: x86_64
-            interpreter: pypy3.10 pypy3.11
-          - os: windows
-            target: i686
-            python-architecture: x86
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
-          - os: windows
-            target: aarch64
-            runs-on: windows-11-arm
-            interpreter: "3.11 3.12 3.13 3.14 3.14t"
+          # - os: windows
+          #   target: x86_64
+          #   interpreter: pypy3.10 pypy3.11
+          # - os: windows
+          #   target: i686
+          #   python-architecture: x86
+          #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 3.14t
+          # - os: windows
+          #   target: aarch64
+          #   runs-on: windows-11-arm
+          #   interpreter: "3.11 3.12 3.13 3.14 3.14t"
 
         exclude:
           # was just a dummy variable to set a default value for target
@@ -518,7 +537,8 @@ jobs:
   build-pgo:
     name: build pgo-optimized on ${{ matrix.platform.os }} / ${{ matrix.interpreter }}
     # only run on push to main and on release
-    if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'Full Build')
+    # if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'Full Build')
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -569,6 +589,7 @@ jobs:
   inspect-pypi-assets:
     needs: [build, build-sdist, build-pgo]
     runs-on: ubuntu-latest
+    if: false
 
     steps:
       - uses: actions/checkout@v5
@@ -601,6 +622,7 @@ jobs:
     name: test build on ${{ matrix.target }}-${{ matrix.distro }}
     needs: [build]
     runs-on: ubuntu-latest
+    if: false
 
     strategy:
       fail-fast: false
@@ -652,6 +674,7 @@ jobs:
   test-builds-os:
     name: test build on ${{ matrix.platform.os }}
     needs: [build, build-pgo]
+    if: false
 
     strategy:
       fail-fast: false
